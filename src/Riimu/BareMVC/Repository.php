@@ -15,7 +15,7 @@ class Repository
     protected $db;
     protected $modelName;
     protected $tableName;
-    protected $tablePrefix = 'cookie_';
+    protected $tablePrefix = '';
 
     public function __construct(\PDO $db)
     {

@@ -72,8 +72,8 @@ class Model
     public function get($name)
     {
         foreach ((array) $name as $field) {
-            $method = 'get' . ucfirst($name);
-            $values[$name] = $this->$method();
+            $method = 'get' . ucfirst($field);
+            $values[$field] = $this->$method();
         }
 
         return is_array($name) ? $values : reset($values);
