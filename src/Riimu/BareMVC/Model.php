@@ -33,7 +33,7 @@ class Model
         return (array) $this->primaryKey;
     }
 
-    public function getFields()
+    public function getDatabaseFields()
     {
         return $this->fields;
     }
@@ -84,7 +84,7 @@ class Model
         return $this->new;
     }
 
-    public function setNew($new)
+    public function setNewStatus($new)
     {
         $this->new = (bool) $new;
         return $this;
@@ -97,6 +97,11 @@ class Model
 
     public function setDatabaseValues($values)
     {
+        if (array_keys($values) != $this->fields) {
+            throw new \RuntimeException('Invalid Database Row for ' . get_class($this));
+        }
+
         $this->values = $values;
+        $this->new = false;
     }
 }

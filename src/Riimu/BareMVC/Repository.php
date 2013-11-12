@@ -36,7 +36,7 @@ class Repository
                 $model->set($primary[0], $this->db->lastInsertId());
             }
 
-            $model->setNew(false);
+            $model->setNewStatus(false);
         } else {
             $this->update($model->getDatabaseValues(), $model->get($model->getPrimaryKey()));
         }
@@ -47,12 +47,24 @@ class Repository
         return $this->tablePrefix . $this->tableName;
     }
 
-    protected function find($where)
+    public function findByPrimaryKey($value)
+    {
+        $primary = (new $this->modelName())->getPrimaryKey();
+
+        if (count((array) $value) !== count($primary)) {
+            throw new \InvalidArgumentException("$this->modelName must have " . count($primary) . " primary keys");
+        }
+
+        $entries = $this->find(array_combine($primary, (array) $value));
+        return $entries ? $entries[0] : null;
+    }
+
+    protected function find(array $where)
     {
         $model = new $this->modelName();
         $params = [];
         $sql = sprintf('SELECT `%s` FROM `%s` WHERE %s',
-            implode('`, `', $model->getFields()),
+            implode('`, `', $model->getDatabaseFields()),
             $this->getTableName(),
             $this->buildWhereStatement($where, $params));
         $stmt = $this->db->prepare($sql);
@@ -70,6 +82,20 @@ class Repository
         return $entries;
     }
 
+    protected function count(array $where = null)
+    {
+        $sql = sprintf('SELECT COUNT(*) FROM `%s`', $this->getTableName());
+        $params = [];
+
+        if ($where !== null) {
+            $sql .= ' WHERE ' . $this->buildWhereStatement($where, $params);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     protected function insert($values)
     {
         $sql = sprintf('INSERT INTO `%s` (`%s`) VALUES (%s)',
@@ -80,7 +106,7 @@ class Repository
         $stmt->execute(array_values($values));
     }
 
-    protected function update($values, $where)
+    protected function update($values, array $where)
     {
         $params = array_values($values);
         $sql = sprintf('UPDATE `%s` SET %s WHERE %s',
@@ -94,7 +120,7 @@ class Repository
         $stmt->execute($params);
     }
 
-    private function buildWhereStatement($where, & $params)
+    private function buildWhereStatement(array $where, & $params)
     {
         $clauses = [];
 
