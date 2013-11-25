@@ -10,7 +10,15 @@ namespace Riimu\BareMVC;
 abstract class AbstractController implements Controller
 {
     protected $defaultAction = 'index';
+
+    /**
+     * @var \Riimu\BareMVC\Router
+     */
     protected $router;
+
+    /**
+     * @var \Riimu\BareMVC\View
+     */
     protected $view;
 
     public function getDefaultAction()

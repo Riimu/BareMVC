@@ -44,7 +44,7 @@ class View
 
     public function setSubView($name, $view)
     {
-        $this->variables[$name] = $this->getSub($view);
+        return $this->variables[$name] = $this->getSub($view);
     }
 
     public function getVariables()
@@ -54,9 +54,14 @@ class View
             : $this->variables + $this->parent->getVariables();
     }
 
-    public function output()
+    public function output(array $variables = null)
     {
         extract($this->getVariables());
+
+        if ($variables !== null) {
+            extract($variables);
+        }
+
         require sprintf($this->viewFormat, $this->view);
     }
 

@@ -32,7 +32,12 @@ class Router
     public function getRequestRoute($canonize = true)
     {
         $route = isset($_GET['path']) ? $_GET['path'] : null;
-        $path = $this->getRoute($route);
+
+        try {
+            $path = $this->getRoute($route);
+        } catch (InvalidPathException $ex) {
+            throw new PageNotFoundException("Path $route does not exist");
+        }
 
         if ($canonize && $route !== $path['path'] && $this->url !== null) {
             header('location: ' . $this->url . $this->toPath($path['path']));
@@ -79,14 +84,14 @@ class Router
         $class = sprintf($this->controllerFormat, ucfirst($name ?: $defaultName));
 
         if (!class_exists($class) || !is_a($class, 'Riimu\BareMVC\Controller', true)) {
-            throw new PageNotFoundException("Controller '$class' not found");
+            throw new InvalidPathException("Controller '$class' not found");
         }
 
         $defaultAction = strtolower((new $class)->getDefaultAction());
         $method = sprintf($this->actionFormat, $action ?: $defaultAction);
 
         if (!method_exists($class, $method)) {
-            throw new PageNotFoundException("Action '$method' not found on '$class'");
+            throw new InvalidPathException("Action '$method' not found on '$class'");
         }
 
         if (!$action || $action === $defaultAction) {
@@ -130,3 +135,6 @@ class Router
         return $this->basePath . '/' . ltrim($path, '/');
     }
 }
+
+class PageNotFoundException extends \Exception { }
+class InvalidPathException extends \Exception { }

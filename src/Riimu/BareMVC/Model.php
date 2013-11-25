@@ -41,10 +41,7 @@ class Model
     public function __call($name, $arguments)
     {
         $type = substr($name, 0, 3);
-
-        $field = preg_replace_callback('/[A-Z]/', function ($match) {
-            return '_' . strtolower($match[0]);
-        }, lcfirst(substr($name, 3)));
+        $field = $this->formatFieldName(substr($name, 3));
 
         if (($type !== 'set' && $type !== 'get') || !in_array($field, $this->fields)) {
             throw new \BadMethodCallException('Undefined method "' . $name . '" on ' . get_class($this));
@@ -62,7 +59,7 @@ class Model
         $values = func_num_args() > 1 ? [$name => $value] : $name;
 
         foreach ($values as $field => $set) {
-            $method = 'set' . ucfirst($field);
+            $method = 'set' . $this->formatMethodName($field);
             $this->$method($set);
         }
 
@@ -72,11 +69,25 @@ class Model
     public function get($name)
     {
         foreach ((array) $name as $field) {
-            $method = 'get' . ucfirst($field);
+            $method = 'get' . $this->formatMethodName($field);
             $values[$field] = $this->$method();
         }
 
         return is_array($name) ? $values : reset($values);
+    }
+
+    private function formatMethodName($field)
+    {
+        return ucfirst(preg_replace_callback('/_([a-z]?)/', function ($match) {
+            return strtoupper($match[1]);
+        }, $field));
+    }
+
+    private function formatFieldName($method)
+    {
+        return preg_replace_callback('/[A-Z]/', function ($match) {
+            return '_' . strtolower($match[0]);
+        }, lcfirst($method));
     }
 
     public function isNew()
