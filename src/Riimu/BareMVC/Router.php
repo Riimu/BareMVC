@@ -40,11 +40,11 @@ class Router
         }
 
         if ($canonize && $route !== $path['path'] && $this->url !== null) {
-            header('location: ' . $this->url . $this->toPath($path['path']));
-            exit;
+            $this->redirect($this->toPath($path['path']));
         }
 
         parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY), $_GET);
+        $this->self = $path['path'];
 
         return $path;
     }
@@ -114,6 +114,12 @@ class Router
         $this->self = $path;
     }
 
+    public function redirect($path)
+    {
+        header('location: ' . $this->toUrl($path));
+        exit;
+    }
+
     public function to($controller, $action = null, array $params = null, array $get = null)
     {
         $url = $this->toPath($this->getPath($controller, $action, $params)['path']);
@@ -133,6 +139,11 @@ class Router
     public function toPath($path)
     {
         return $this->basePath . '/' . ltrim($path, '/');
+    }
+
+    public function toUrl($path)
+    {
+        return $this->url . $path;
     }
 }
 
