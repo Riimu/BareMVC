@@ -83,7 +83,7 @@ class Router
         $defaultName = strtolower($this->defaultController);
         $class = sprintf($this->controllerFormat, ucfirst($name ?: $defaultName));
 
-        if (!class_exists($class) || !is_a($class, 'Riimu\BareMVC\Controller', true)) {
+        if (!class_exists($class) || !is_a($class, 'Riimu\BareMVC\Controller\Controller', true)) {
             throw new InvalidPathException("Controller '$class' not found");
         }
 

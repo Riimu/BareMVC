@@ -1,6 +1,6 @@
 <?php
 
-namespace Riimu\BareMVC;
+namespace Riimu\BareMVC\View;
 
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>

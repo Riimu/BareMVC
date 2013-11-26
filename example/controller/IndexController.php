@@ -5,7 +5,7 @@
  * @copyright Copyright (c) 2013, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class IndexController extends \Riimu\BareMVC\AbstractController
+class IndexController extends \Riimu\BareMVC\Controller\AbstractController
 {
     public function setUp()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Riimu\BareMVC;
+namespace Riimu\BareMVC\Controller;
 
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
@@ -10,7 +10,7 @@ namespace Riimu\BareMVC;
 interface Controller
 {
     public function getDefaultAction();
-    public function setRouter(Router $router);
+    public function setRouter(\Riimu\BareMVC\Router $router);
     public function setUp();
     public function tearDown($return);
 }

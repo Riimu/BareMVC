@@ -1,6 +1,6 @@
 <?php
 
-namespace Riimu\BareMVC;
+namespace Riimu\BareMVC\Model;
 
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
@@ -22,7 +22,7 @@ class Repository
         $this->db = $db;
     }
 
-    public function save (\Site\Model\Model $model)
+    public function save (\Riimu\BareMVC\Model\Model $model)
     {
         if (!($model instanceof $this->modelName)) {
             throw new \RuntimeException('Cannot save model of type "' . get_class($model) . '"');

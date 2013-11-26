@@ -1,6 +1,6 @@
 <?php
 
-namespace Riimu\BareMVC;
+namespace Riimu\BareMVC\Controller;
 
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
@@ -17,7 +17,7 @@ abstract class AbstractController implements Controller
     protected $router;
 
     /**
-     * @var \Riimu\BareMVC\View
+     * @var \Riimu\BareMVC\View\View
      */
     protected $view;
 
@@ -26,16 +26,16 @@ abstract class AbstractController implements Controller
         return $this->defaultAction;
     }
 
-    public function setRouter(Router $router)
+    public function setRouter(\Riimu\BareMVC\Router $router)
     {
         $this->router = $router;
     }
 
     public function setUp()
     {
-        $this->view = new View();
+        $this->view = new \Riimu\BareMVC\View\View();
         $this->view->setViewFormat(dirname($_SERVER['SCRIPT_FILENAME']) .
-            DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . '/%s.php');
+            DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . '%s.php');
         $this->view->link = $this->router;
     }
 
