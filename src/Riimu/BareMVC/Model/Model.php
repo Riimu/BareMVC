@@ -28,8 +28,12 @@ class Model
         }
     }
 
-    public function getPrimaryKey()
+    public function getPrimaryKeys()
     {
+        if (empty($this->primaryKey)) {
+            throw new \RuntimeException("No primary keys have been defined");
+        }
+
         return (array) $this->primaryKey;
     }
 

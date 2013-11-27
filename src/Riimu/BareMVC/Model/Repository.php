@@ -25,20 +25,38 @@ class Repository
     public function save (\Riimu\BareMVC\Model\Model $model)
     {
         if (!($model instanceof $this->modelName)) {
-            throw new \RuntimeException('Cannot save model of type "' . get_class($model) . '"');
+            throw new \RuntimeException(
+                'Unexpected model "' . get_class($model) . '". ' .
+                'Was expecting instance of "' . $this->modelName . '"');
         }
 
         if ($model->isNew()) {
-            $this->insert($model->getDatabaseValues());
-            $primary = $model->getPrimaryKey();
+            $data = $model->getDatabaseValues();
+            $primary = $model->getPrimaryKeys();
 
-            if (count($primary) === 1 && $model->get($primary[0]) === null) {
+            if (count($primary === 1) && $model->get($primary[0]) === null) {
+                unset($data[$primary[0]]);
+                $updatePrimaryKey = true;
+            } else {
+                $updatePrimaryKey = false;
+            }
+
+            $this->insert($data);
+
+            if ($updatePrimaryKey) {
                 $model->set($primary[0], $this->db->lastInsertId());
             }
 
             $model->setNewStatus(false);
         } else {
-            $this->update($model->getDatabaseValues(), $model->get($model->getPrimaryKey()));
+            $data = $model->getDatabaseValues();
+
+            foreach ($model->getPrimaryKeys() as $key) {
+                $where[$key] = ['=', $data[$key]];
+                unset($data[$key]);
+            }
+
+            $this->update($data, $where);
         }
     }
 
@@ -63,7 +81,7 @@ class Repository
 
     public function findByPrimaryKey($value)
     {
-        $keys = (new $this->modelName())->getPrimaryKey();
+        $keys = (new $this->modelName())->getPrimaryKeys();
         $values = (array) $value;
 
         if (count($keys) !== count($values)) {
@@ -183,23 +201,29 @@ class Repository
 
     protected function where(array $where, & $params)
     {
-        $ops = ['<', '>'];
+        $ops = ['<', '>', '=', 'IN'];
         $clauses = [];
 
         foreach ($where as $field => $value) {
             $name = "`" . implode('`.`', explode('.', $field, 2)) . "`";
 
-            if (is_null($value)) {
-                $clauses[] = "$name IS NULL";
-            } elseif (!is_array($value)) {
-                $clauses[] = "$name = ?";
-                $params[] = $value;
-            } elseif (count($value) === 2 && in_array($value[0], $ops)) {
-                $clauses[] = "$name $value[0] ?";
-                $params[] = $value[1];
+            if (!is_array($value)) {
+                $op = '=';
+            } elseif (count($value) === 2 && in_array(reset($value), $ops, true)) {
+                $op = current($value);
+                $value = next($value);
             } else {
+                $op = 'IN';
+            }
+
+            if ($op === '=' && $value === null) {
+                $clauses[] = "$name IS NULL";
+            } elseif ($op === 'IN') {
                 $clauses[] = "$name IN (" . implode(', ', array_fill(0, count($value), '?')) .")";
-                $params = array_merge($params, $value);
+                $params = array_merge($params, array_values($value));
+            } else {
+                $clauses[] = "$name $op ?";
+                $params[] = $value;
             }
         }
 
