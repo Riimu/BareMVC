@@ -34,7 +34,7 @@ class Repository
             $data = $model->getDatabaseValues();
             $primary = $model->getPrimaryKeys();
 
-            if (count($primary === 1) && $model->get($primary[0]) === null) {
+            if (count($primary) === 1 && $model->get($primary[0]) === null) {
                 unset($data[$primary[0]]);
                 $updatePrimaryKey = true;
             } else {
