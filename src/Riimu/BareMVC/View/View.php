@@ -72,6 +72,14 @@ class View
 
     public function __get($name)
     {
+        if (!isset($this->variables[$name])) {
+            if ($this->parent === null) {
+                throw new \OutOfBoundsException("'$name' variable does not exist in the view");
+            }
+
+            return $this->parent->__get($name);
+        }
+
         return $this->variables[$name];
     }
 
