@@ -114,6 +114,11 @@ class Router
         $this->self = $path;
     }
 
+    public function redirectTo($controller, $action = null, array $params = null, array $get = null)
+    {
+        $this->redirect($this->to($controller, $action, $params, $get));
+    }
+
     public function redirect($path)
     {
         header('location: ' . $this->toUrl($path));
